@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Assistant · AI Research Paper Assistant</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%237c5cff'/%3E%3Cpath d='M9 22V10h7a4 4 0 010 8h-4' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/style.css">
+<script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;else if(matchMedia('(prefers-color-scheme: light)').matches)document.documentElement.dataset.theme='light';}catch(e){}</script>
+</head>
+<body>
+<div class="bg-orb o1"></div><div class="bg-orb o2"></div>
+
+<!-- ============ AUTH ============ -->
+<section id="auth" class="auth hidden">
+  <div class="auth-card">
+    <div class="brand big"><span class="logo"></span><span>Paper<b>Assistant</b></span></div>
+    <h1>Understand any research paper in seconds.</h1>
+    <p class="muted">Upload a PDF, ask questions, and get cited answers you can verify — page by page.</p>
+    <button id="btnGuest" class="btn primary xl">Start instantly <span class="arrow">→</span></button>
+    <div class="or"><span>or use an account to keep history across devices</span></div>
+    <div class="tabs" id="authTabs"><button class="on" data-tab="login">Log in</button><button data-tab="register">Create account</button></div>
+    <form id="authForm" autocomplete="on">
+      <input id="aName" class="field hidden" placeholder="Full name" autocomplete="name">
+      <input id="aEmail" class="field" type="email" placeholder="Email" autocomplete="email" required>
+      <input id="aPass" class="field" type="password" placeholder="Password (min 6 chars)" autocomplete="current-password" required>
+      <div id="authErr" class="err hidden"></div>
+      <button class="btn" type="submit" id="authSubmit">Log in</button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="app" class="app hidden">
+  <div id="scrim" class="scrim"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="side-head">
+      <div class="brand"><span class="logo"></span><span>Paper<b>Assistant</b></span></div>
+      <button class="icon-btn only-mobile" data-close="sidebar" aria-label="Close"></button>
+    </div>
+    <button class="btn primary block" id="btnNew"><i data-i="plus"></i> New chat</button>
+
+    <div class="sec-title">Papers <span id="docCount" class="badge">0</span></div>
+    <label id="drop" class="drop">
+      <input id="fileInput" type="file" accept="application/pdf,.pdf" multiple hidden>
+      <i data-i="upload"></i>
+      <div><b>Drop PDFs here</b><span>or click to browse · up to 50 MB</span></div>
+    </label>
+    <div id="docList" class="doc-list"></div>
+
+    <div class="sec-title">History</div>
+    <div id="sessList" class="sess-list"></div>
+
+    <div class="side-foot">
+      <div class="user"><span class="avatar" id="uAvatar">G</span><div><b id="uName">Guest</b><span id="uMail" class="muted"></span></div></div>
+      <button class="icon-btn" id="btnSettings" title="Settings" data-i="gear"></button>
+      <button class="icon-btn" id="btnLogout" title="Log out" data-i="logout"></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn only-mobile" id="btnMenu" data-i="menu" aria-label="Menu"></button>
+      <div class="scope" id="scope"><i data-i="book"></i><span id="scopeText">No papers yet</span></div>
+      <div class="spacer"></div>
+      <span id="keyPill" class="pill warn hidden">⚡ Add free AI key</span>
+      <button class="icon-btn" id="btnTheme" title="Toggle theme" data-i="moon"></button>
+      <button class="icon-btn only-narrow" id="btnPanel" title="Sources & tools" data-i="panel"></button>
+    </header>
+
+    <div class="feed-wrap"><div id="feed" class="feed"></div></div>
+
+    <div class="composer-wrap">
+      <div class="quick" id="quick">
+        <button data-q="summary"><i data-i="spark"></i>Summary</button>
+        <button data-q="explain"><i data-i="bulb"></i>Explain a concept</button>
+        <button data-q="quiz"><i data-i="quiz"></i>Quiz me</button>
+        <button data-q="slides"><i data-i="slides"></i>Slides</button>
+      </div>
+      <div class="composer" id="composer">
+        <span id="modeTag" class="mode-tag hidden">Explain <b data-clear>×</b></span>
+        <textarea id="input" rows="1" placeholder="Ask anything about your papers…"></textarea>
+        <button id="btnSend" class="send" aria-label="Send"><i data-i="send"></i></button>
+        <button id="btnStop" class="send stop hidden" aria-label="Stop"><i data-i="stop"></i></button>
+      </div>
+      <div class="hint">Answers cite exact pages · <kbd>Enter</kbd> to send, <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line</div>
+    </div>
+  </main>
+
+  <aside class="panel" id="panel">
+    <div class="side-head">
+      <div class="tabs pt" id="panelTabs"><button class="on" data-p="sources">Sources</button><button data-p="tools">Study tools</button></div>
+      <button class="icon-btn only-narrow" data-close="panel" aria-label="Close"></button>
+    </div>
+    <div id="pSources" class="pbody"></div>
+    <div id="pTools" class="pbody hidden">
+      <div class="tool">
+        <h4><i data-i="spark"></i> Summary</h4>
+        <p class="muted">Cited overview of the selected papers. Repeat runs are instant.</p>
+        <div class="seg" id="segLevel"><button data-v="short">Short</button><button data-v="medium" class="on">Medium</button><button data-v="detailed">Detailed</button></div>
+        <button class="btn block" data-run="summary">Generate summary</button>
+      </div>
+      <div class="tool">
+        <h4><i data-i="bulb"></i> Explain a concept</h4>
+        <p class="muted">Simple-language explanation of a term, method or equation.</p>
+        <input id="conceptIn" class="field" placeholder="e.g. attention mechanism, Eq. 3, F1-score">
+        <button class="btn block" data-run="concept">Explain simply</button>
+      </div>
+      <div class="tool">
+        <h4><i data-i="quiz"></i> Quiz</h4>
+        <p class="muted">Self-test with sourced answers.</p>
+        <div class="seg" id="segQuiz"><button data-v="3">3</button><button data-v="5" class="on">5</button><button data-v="8">8</button></div>
+        <button class="btn block" data-run="quiz">Create quiz</button>
+      </div>
+      <div class="tool">
+        <h4><i data-i="slides"></i> Slide outline</h4>
+        <p class="muted">Presentation-ready outline with source references.</p>
+        <div class="seg" id="segSlides"><button data-v="6">6</button><button data-v="8" class="on">8</button><button data-v="12">12</button></div>
+        <button class="btn block" data-run="slides">Create outline</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ============ SETTINGS ============ -->
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <h3>Settings</h3>
+    <p class="muted">The assistant uses Google Gemini (free tier works great). Your key is stored only on this computer in <code>.env</code>.</p>
+    <label class="lbl">Gemini API key <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Get a free key ↗</a></label>
+    <input id="setKey" class="field" type="password" placeholder="AIza…" autocomplete="off">
+    <label class="lbl">Model</label>
+    <input id="setModel" class="field" placeholder="gemini-2.5-flash">
+    <div class="row"><button class="btn" id="setTest">Test connection</button><button class="btn" id="setCancel">Close</button><button class="btn primary" id="setSave">Save</button></div>
+  </div>
+</div>
+<div id="toasts" class="toasts"></div>
+
+<script src="/static/lib.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
